@@ -29,15 +29,6 @@ No build tools, dependencies, frameworks, or external assets are required. The f
 
 ---
 
-## Hosting on GitHub Pages
-
-1. Push both files to a GitHub repository
-2. Go to **Settings → Pages**
-3. Under **Source**, select your branch (e.g. `main`) and set the folder to `/ (root)`
-4. GitHub will provide a URL such as `https://your-username.github.io/your-repo-name/tvr-path.html`
-
----
-
 ## Accessibility
 
 This page is built to conform with **WCAG 2.0 Level AAA** standards, including:
