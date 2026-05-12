@@ -301,7 +301,7 @@
     <section aria-label="Circle diagram of TVR PATH elements" role="region">
       <div class="circle-scroll-wrap">
       <div class="circle-container" id="circle" role="img"
-           aria-label="An interactive diagram showing 27 elements arranged in a circle around a central image of a fire. Each topic is displayed on a wooden log. Click or tap any log to see its definition and what other elements it connects with. On small screens, scroll down for a full list of elements and definitions.">
+           aria-label="An interactive diagram showing 27 elements arranged in a circle around a central image of a fire. Each topic is displayed on a wooden log. Click or tap any element to see its definition and what other elements it connects with. On small screens, scroll down for a full list of elements and definitions.">
 
         <div class="centre">
           <!-- Flame -->
@@ -518,7 +518,7 @@
       </div><!-- .circle-scroll-wrap -->
     </section>
 
-    <p class="hint" aria-hidden="true">Hover over or click on any log to explore its connections</p>
+    <p class="hint" aria-hidden="true">Click on any element to see its definition and explore its connections</p>
 
     <p class="mobile-hint" aria-hidden="true" style="display:none; text-align:center; font-family:Arial,sans-serif; font-size:0.9rem; color:#0a0000; font-weight:700; margin-bottom:0.75rem;">Tap any log to see its definition and explore its connections</p>
     <section id="node-list" aria-label="TVR PATH elements list">
@@ -783,7 +783,7 @@
     var built = buildLogSVG(topic.label, 'wg'+i, 42);
     built.g.setAttribute('tabindex','0');
     built.g.setAttribute('role','button');
-    built.g.setAttribute('aria-label', topic.label + '. Tap or click to view definition and related topics.');
+    built.g.setAttribute('aria-label', topic.label + '. Tap to see definitions and related topics.');
 
     built.g.addEventListener('click', function() { selectNode(i); });
     built.g.addEventListener('keydown', function(e) {
