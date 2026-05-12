@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVR PATH – Personalized Approach to Traditional Holistics</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-outer:   #6b1a10;
+    --bg-inner:   #c85a20;
+    --bg-glow:    #e8832a;
+    --wood-fill:  #d4a96a;
+    --wood-ring:  #b8894a;
+    --wood-dark:  #8b6030;
+    --text-node:  #2a1a08;
+    --text-title: #0a0000;
+    --focus-ring: #ffe066;
+  }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: radial-gradient(ellipse at center, var(--bg-glow) 0%, var(--bg-inner) 35%, var(--bg-outer) 100%);
+    min-height: 100vh;
+    color: var(--text-title);
+  }
+
+  .skip-link {
+    position: absolute; top: -9999px; left: 1rem;
+    background: #fff; color: #000;
+    padding: 0.5rem 1rem; font-size: 1rem;
+    border-radius: 4px; z-index: 9999;
+    text-decoration: none; font-family: Arial, sans-serif;
+  }
+  .skip-link:focus { top: 1rem; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  .page-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
+  }
+
+  .page-heading {
+    text-align: center;
+    margin-bottom: 2rem;
+    background: rgba(0, 0, 0, 0.62);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    border: 1px solid rgba(255, 200, 80, 0.25);
+  }
+  .page-heading h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700; color: #ffffff;
+    letter-spacing: 0.05em;
+  }
+  .page-heading p {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    font-weight: 700; color: #ffffff;
+    margin-top: 0.3rem;
+  }
+
+  .circle-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Centre panel ── */
+  .centre {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 42%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Selected node preview above flame */
+
+  .flame-wrap {
+    width: clamp(108px, 21.6%, 186px);
+    height: clamp(108px, 21.6%, 186px);
+    background: radial-gradient(circle at 50% 70%, #1a0800 0%, #0a0400 60%, #050200 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 3px solid #5a3010;
+    box-shadow: 0 0 18px 4px rgba(255,120,20,0.18), inset 0 0 12px rgba(255,80,0,0.08);
+    flex-shrink: 0;
+  }
+  .flame-wrap svg { width: 88%; height: 88%; }
+
+  /* Definition text below flame */
+  #centre-def {
+    opacity: 0;
+    transition: opacity 0.4s ease 0.15s;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.4s ease 0.15s, max-height 0.4s ease 0.1s;
+    width: 100%;
+    margin-top: 6px;
+  }
+  #centre-def.visible {
+    opacity: 1;
+    max-height: 400px;
+  }
+  #centre-def {
+    background: rgba(255, 245, 220, 0.82);
+    border-radius: 8px;
+    padding: 5px 7px;
+    backdrop-filter: blur(2px);
+  }
+  #centre-def-title {
+    font-family: Georgia, serif;
+    font-size: clamp(0.6rem, 1.3vw, 0.85rem);
+    font-weight: 700;
+    color: #1a0800;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  #centre-def-body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(0.48rem, 0.95vw, 0.68rem);
+    color: #1a0800;
+    line-height: 1.5;
+    max-height: clamp(80px, 16vw, 160px);
+    overflow-y: auto;
+    padding-right: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(120,70,20,0.5) rgba(200,160,80,0.2);
+    text-align: left;
+  }
+
+  /* Reset button */
+  #reset-btn {
+    display: none;
+    margin-top: 5px;
+    background: rgba(40,15,0,0.88);
+    color: #ffe8a0;
+    border: 1px solid rgba(255,200,80,0.7);
+    border-radius: 20px;
+    padding: 6px 14px; min-height: 44px; min-width: 44px;
+    font-size: clamp(0.45rem, 0.9vw, 0.65rem);
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  #reset-btn:hover { background: rgba(20,8,0,0.95); color: #fff5c0; }
+  #reset-btn:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  #reset-btn.visible { display: block; }
+
+  /* ── Nodes ── */
+  .node {
+    position: absolute;
+    width: clamp(68px, 9.5vw, 108px);
+    height: clamp(68px, 9.5vw, 108px);
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: center center;
+    z-index: 3;
+    overflow: visible;
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+  }
+  .node:hover, .node:focus-within {
+    transform: translate(-50%, -50%) scale(1.35);
+    z-index: 10;
+  }
+  .node.faded {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .node.selected {
+    transform: translate(-50%, -50%) scale(1.15);
+    z-index: 11;
+  }
+  .node svg { width: 100%; height: 100%; overflow: visible; }
+  .node-btn { cursor: pointer; }
+  .node-btn:focus { outline: none; }
+  .node-btn:focus .node-ring { stroke: var(--focus-ring); stroke-width: 4; }
+  .node-label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    fill: #2a1a08;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* ── Fallback list ── */
+  #node-list {
+    margin-top: 2rem;
+    padding: 1.2rem 1.5rem;
+    background: rgba(0,0,0,0.55);
+    border-radius: 8px;
+    border: 1px solid rgba(255,210,120,0.5);
+  }
+  #node-list h2 {
+    font-size: 1rem; color: #ffe8a0;
+    margin-bottom: 0.75rem; font-family: Arial, sans-serif;
+  }
+  #node-list ul {
+    list-style: none;
+    padding-left: 0;
+    column-count: 2; column-gap: 1.5rem;
+  }
+  #node-list li {
+    font-family: Arial, sans-serif;
+    font-size: 0.9rem; color: #fff3cc;
+    margin-bottom: 0.35rem; break-inside: avoid;
+  }
+  #node-list details summary { cursor: pointer; font-weight: 700; color: #ffe8a0; padding: 0.25rem 0; min-height: 44px; display: flex; align-items: center; }
+  #node-list details p { color: #f5e8c0; }
+  #node-list li {
+    transition: opacity 0.3s ease, max-height 0.35s ease;
+  }
+  #node-list li.list-hidden {
+    display: none;
+  }
+
+  .hint {
+    text-align: center; font-family: Arial, sans-serif;
+    font-size: 0.82rem; color: #0a0000; font-weight: 700; text-shadow: 0 1px 2px rgba(255,220,140,0.4);
+    margin-top: 0.6rem; letter-spacing: 0.02em;
+  }
+
+  /* ── Circle scroll wrapper (mobile) ── */
+  .circle-scroll-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+  .circle-scroll-wrap .circle-container {
+    /* On small screens enforce a minimum size so the diagram stays usable */
+    min-width: 340px;
+    min-height: 340px;
+  }
+
+  /* ── Tablet: single column list, tighter padding ── */
+  @media (max-width: 768px) {
+    #node-list ul { column-count: 1; }
+    .page-wrapper { padding: 1.5rem 1rem 2rem; }
+    #node-list h2 { font-size: 1.1rem; }
+    #node-list li { font-size: 1rem; margin-bottom: 0.6rem; }
+    #node-list details summary { font-size: 1rem; }
+    #node-list details p { font-size: 0.95rem; line-height: 1.6; }
+  }
+
+  /* ── Phone: keep circle, tighten layout ── */
+  @media (max-width: 600px) {
+    .mobile-hint { display: block !important; }
+    .hint { display: none; }
+    .page-wrapper { padding: 1rem 0.5rem 1.5rem; }
+    .page-heading { padding: 0.75rem 1rem; }
+    /* Limit circle height on phones so it doesn't dominate scroll */
+    .circle-scroll-wrap {
+      max-height: 92vw;
+    }
+  }
+
+  /* ── Touch devices: larger tap targets, reduce hover zoom ── */
+  @media (hover: none) {
+    .node {
+      width: clamp(60px, 12vw, 108px);
+      height: clamp(60px, 12vw, 108px);
+    }
+    .node:hover, .node:focus-within {
+      transform: translate(-50%, -50%) scale(1.22);
+    }
+    #reset-btn {
+      padding: 8px 18px;
+      font-size: clamp(0.6rem, 1.1vw, 0.8rem);
+    }
+  }
+</style>
+</head>
+<body>
+<a href="#node-list" class="skip-link">Skip to topic list</a>
+<main id="main-content">
+  <div class="page-wrapper">
+    <header class="page-heading" role="banner">
+      <h1>TVR PATH</h1>
+      <p>Personalized Approach to Traditional Holistics</p>
+    </header>
+
+    <section aria-label="Circle diagram of TVR PATH elements" role="region">
+      <div class="circle-scroll-wrap">
+      <div class="circle-container" id="circle" role="img"
+           aria-label="An interactive diagram showing 27 elements arranged in a circle around a central image of a fire. Each topic is displayed on a wooden log. Click or tap any log to read its definition and see which other topics it connects to. On small screens, scroll down for a full list of elements and definitions.">
+
+        <div class="centre">
+          <!-- Flame -->
+          <div class="flame-wrap">
+            <svg viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <defs>
+                <!-- Base glow gradient -->
+                <radialGradient id="fl-base" cx="50%" cy="100%" r="60%">
+                  <stop offset="0%"   stop-color="#ffcc00" stop-opacity="0.9"/>
+                  <stop offset="40%"  stop-color="#ff6600" stop-opacity="0.7"/>
+                  <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+                </radialGradient>
+                <!-- Deep outer body -->
+                <radialGradient id="fl-body" cx="50%" cy="88%" r="70%" gradientUnits="objectBoundingBox">
+                  <stop offset="0%"   stop-color="#ff7700"/>
+                  <stop offset="50%"  stop-color="#cc2200"/>
+                  <stop offset="100%" stop-color="#6a0800" stop-opacity="0.5"/>
+                </radialGradient>
+                <!-- Mid orange -->
+                <radialGradient id="fl-orange" cx="50%" cy="90%" r="65%" gradientUnits="objectBoundingBox">
+                  <stop offset="0%"   stop-color="#ffaa00"/>
+                  <stop offset="55%"  stop-color="#ff5500"/>
+                  <stop offset="100%" stop-color="#aa2000" stop-opacity="0"/>
+                </radialGradient>
+                <!-- Amber/yellow inner -->
+                <radialGradient id="fl-amber" cx="50%" cy="92%" r="55%" gradientUnits="objectBoundingBox">
+                  <stop offset="0%"   stop-color="#ffe050"/>
+                  <stop offset="45%"  stop-color="#ffaa00"/>
+                  <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+                </radialGradient>
+                <!-- Hot white core -->
+                <radialGradient id="fl-hot" cx="50%" cy="95%" r="40%" gradientUnits="objectBoundingBox">
+                  <stop offset="0%"   stop-color="#ffffff"/>
+                  <stop offset="35%"  stop-color="#fff8c0"/>
+                  <stop offset="100%" stop-color="#ffdd60" stop-opacity="0"/>
+                </radialGradient>
+                <!-- Embers -->
+                <radialGradient id="fl-ember" cx="50%" cy="100%" r="45%">
+                  <stop offset="0%"   stop-color="#ffbb00" stop-opacity="1"/>
+                  <stop offset="60%"  stop-color="#ff6600" stop-opacity="0.6"/>
+                  <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="fl-soft" x="-25%" y="-25%" width="150%" height="150%">
+                  <feGaussianBlur stdDeviation="2.2"/>
+                </filter>
+                <filter id="fl-crisp" x="-15%" y="-15%" width="130%" height="130%">
+                  <feGaussianBlur stdDeviation="0.8"/>
+                </filter>
+              </defs>
+
+              <!-- ── Ground ember glow ── -->
+              <ellipse cx="60" cy="122" rx="46" ry="10" fill="url(#fl-base)" filter="url(#fl-soft)"/>
+              <ellipse cx="60" cy="124" rx="30" ry="6"  fill="url(#fl-ember)"/>
+
+              <!-- ══════════════════════════════════
+                   LAYER 1 — outermost body (blurred red/orange)
+                   Wide bonfire base, five-peak silhouette
+              ══════════════════════════════════ -->
+              <path fill="url(#fl-body)" filter="url(#fl-soft)" opacity="0.95"
+                d="M10 125
+                   C10 125  4 108  8 92
+                   C12 76  22 68  18 52
+                   C15 38  20 26  26 16
+                   C24 30  28 42  26 56
+                   C30 44  34 30  36 14
+                   C38 28  38 44  38 58
+                   C42 42  46 22  50 8
+                   C54 22  56 40  58 56
+                   C60 40  64 24  68 12
+                   C70 26  70 44  68 60
+                   C72 46  76 32  80 18
+                   C82 32  82 50  78 64
+                   C82 50  90 38  94 28
+                   C96 42  92 58  88 72
+                   C92 60  100 52 106 48
+                   C108 62  104 78  98 90
+                   C102 80  110 108 110 125
+                   Z"/>
+
+              <!-- ══════════════════════════════════
+                   LAYER 2 — mid orange body, same peaks slightly narrower
+              ══════════════════════════════════ -->
+              <path fill="url(#fl-orange)" filter="url(#fl-crisp)" opacity="0.9"
+                d="M16 124
+                   C16 124  12 108  16 94
+                   C20 80  28 72  26 58
+                   C28 46  32 34  36 22
+                   C35 36  36 50  36 62
+                   C40 48  44 32  46 18
+                   C48 32  48 48  50 60
+                   C53 44  56 26  60 10
+                   C64 26  64 44  64 58
+                   C67 42  70 26  74 14
+                   C76 28  76 46  74 62
+                   C77 48  80 34  84 22
+                   C86 36  86 52  82 66
+                   C86 54  92 44  98 36
+                   C100 50  96 66  90 78
+                   C96 68  102 80  104 124
+                   Z"/>
+
+              <!-- ══════════════════════════════════
+                   LAYER 3 — amber inner, 4 peaks
+              ══════════════════════════════════ -->
+              <path fill="url(#fl-amber)" opacity="0.88"
+                d="M22 124
+                   C22 124  20 108  24 96
+                   C28 84  34 76  32 64
+                   C34 52  38 42  40 30
+                   C40 44  42 56  42 68
+                   C46 54  50 38  52 22
+                   C56 36  56 54  58 68
+                   C62 52  66 34  70 20
+                   C72 34  72 52  70 66
+                   C74 52  78 40  82 28
+                   C84 42  82 58  78 70
+                   C82 62  88 74  90 86
+                   C88 98  98 124 98 124
+                   Z"/>
+
+              <!-- ══════════════════════════════════
+                   LAYER 4 — yellow-white, 3 tall central peaks
+              ══════════════════════════════════ -->
+              <path fill="url(#fl-hot)" opacity="0.82"
+                d="M30 124
+                   C30 124  28 110  32 98
+                   C36 86  40 78  40 66
+                   C42 54  44 44  46 32
+                   C47 46  48 60  50 70
+                   C53 54  56 38  60 20
+                   C63 36  63 54  62 68
+                   C65 54  68 40  72 28
+                   C74 42  74 58  70 72
+                   C74 62  80 76  82 90
+                   C84 106  90 124 90 124
+                   Z"/>
+
+              <!-- ══════════════════════════════════
+                   LAYER 5 — bright white hot core, central tall peak
+              ══════════════════════════════════ -->
+              <path fill="white" opacity="0.55"
+                d="M44 124
+                   C44 124  42 110  46 98
+                   C48 88  50 78  50 66
+                   C52 52  56 36  60 22
+                   C62 38  62 56  62 68
+                   C64 58  66 72  68 86
+                   C70 100  74 124 74 124
+                   Z"/>
+
+              <!-- ══════════════════════════════════
+                   SPARK / EMBER PARTICLES
+              ══════════════════════════════════ -->
+              <circle cx="38" cy="30" r="1.5" fill="#ffee88" opacity="0.7"/>
+              <circle cx="82" cy="22" r="1.2" fill="#ffcc44" opacity="0.6"/>
+              <circle cx="60" cy="10" r="1.8" fill="#ffffff"  opacity="0.5"/>
+              <circle cx="46" cy="18" r="1.0" fill="#ffee88" opacity="0.65"/>
+              <circle cx="72" cy="28" r="1.3" fill="#ffdd66" opacity="0.55"/>
+              <circle cx="54" cy="6"  r="1.1" fill="#ffffff"  opacity="0.45"/>
+              <circle cx="32" cy="44" r="0.9" fill="#ffcc44" opacity="0.5"/>
+              <circle cx="90" cy="38" r="1.0" fill="#ffaa22" opacity="0.5"/>
+
+              <!-- ══════════════════════════════════
+                   ANIMATION
+              ══════════════════════════════════ -->
+              <style>
+                @keyframes bf1 {
+                  0%,100% { transform: skewX(0deg)  scaleY(1);    }
+                  20%     { transform: skewX(-1.5deg) scaleY(1.02); }
+                  50%     { transform: skewX(1.8deg)  scaleY(0.98); }
+                  80%     { transform: skewX(-0.8deg) scaleY(1.01); }
+                }
+                @keyframes bf2 {
+                  0%,100% { transform: skewX(0deg)   scaleY(1);    opacity: 0.90; }
+                  25%     { transform: skewX(2deg)    scaleY(1.03); opacity: 1;    }
+                  60%     { transform: skewX(-1.5deg) scaleY(0.97); opacity: 0.82; }
+                }
+                @keyframes bf3 {
+                  0%,100% { opacity: 0.88; transform: scaleY(1); }
+                  35%     { opacity: 1;    transform: scaleY(1.04); }
+                  70%     { opacity: 0.75; transform: scaleY(0.97); }
+                }
+                @keyframes bf4 {
+                  0%,100% { opacity: 0.82; }
+                  30%     { opacity: 1; }
+                  65%     { opacity: 0.65; }
+                }
+                @keyframes spark-float {
+                  0%,100% { transform: translateY(0)   opacity: 0.7; }
+                  50%     { transform: translateY(-6px); opacity: 0.3; }
+                }
+                .bf-l1 { transform-origin: 60px 124px; animation: bf1 2.6s ease-in-out infinite; }
+                .bf-l2 { transform-origin: 60px 124px; animation: bf2 2.1s ease-in-out infinite 0.3s; }
+                .bf-l3 { transform-origin: 60px 124px; animation: bf3 1.7s ease-in-out infinite 0.6s; }
+                .bf-l4 { transform-origin: 60px 124px; animation: bf4 1.3s ease-in-out infinite 0.2s; }
+                .spark { animation: spark-float 1.8s ease-in-out infinite; }
+                .spark:nth-child(2) { animation-delay: 0.4s; }
+                .spark:nth-child(3) { animation-delay: 0.9s; }
+                .spark:nth-child(4) { animation-delay: 1.3s; }
+              </style>
+            </svg>
+          </div>
+
+          <!-- Definition area -->
+          <div id="centre-def" role="region" aria-live="polite" aria-atomic="true">
+            <div id="centre-def-title"></div>
+            <div id="centre-def-body"></div>
+          </div>
+
+          <button id="reset-btn" aria-label="Reset — show all nodes">&#x21BA; Reset</button>
+        </div>
+
+      </div><!-- #circle -->
+      </div><!-- .circle-scroll-wrap -->
+    </section>
+
+    <p class="hint" aria-hidden="true">Hover or tap any log to explore its connections</p>
+
+    <p class="mobile-hint" aria-hidden="true" style="display:none; text-align:center; font-family:Arial,sans-serif; font-size:0.9rem; color:#0a0000; font-weight:700; margin-bottom:0.75rem;">Tap any element to expand its definition</p>
+    <section id="node-list" aria-label="TVR PATH elements list">
+      <h2>TVR PATH Elements</h2>
+      <ul id="topics-list"></ul>
+    </section>
+  </div>
+</main>
+
+<script>
+(function() {
+
+  /* ─────────────────────────────────────────
+     DATA
+  ───────────────────────────────────────── */
+  var topicData = [
+    {
+      label: "Acceptable Modes of Transportation",
+      def: "The degree to which vehicles that reliably work to navigate the area are available. This includes vehicles for TVR Program staff to do their work, as well as for program participants to meet their employment goals. It also includes the ability of the TVR program to provide appropriate vehicles when they are part of the participant's individualized employment plan.",
+      related: ["Working with Available Resources","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Providing Education About TVR Program","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Neighborhood Values","Education Levels","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Availability of Resources"]
+    },
+    {
+      label: "Accessibility of Internet",
+      def: "Refers to a variety of aspects of internet accessibility and usability including its quality, reliability, and speed. It also includes whether a person has access to a dedicated source always available for use (perhaps in the workplace or home) or if they rely on hotspots. The hotspots may be in the community with limited windows of availability and bandwidth. Hotspots in the home may be susceptible to strength of cellular signals and have bandwidth constraints. Another aspect is the availability of a device that connects to the internet.",
+      related: ["Working with Available Resources","Way of Life","Transportation Options","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation"]
+    },
+    {
+      label: "Accessibility of Public Transportation",
+      def: "Refers to all aspects of accessibility including the schedule of operation, region traveled and location of stops as well as to whether it removes barriers created by a person's impairments (such as the ability to use from a powered wheelchair).",
+      related: ["Working with Available Resources","Way of Life","Transportation Options","Staff Training on Cultural Awareness","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Internet"]
+    },
+    {
+      label: "Acculturation",
+      def: "A condition shaped by experience and an ongoing process of adapting to non-Native systems such as education, employment, or government, while working to stay grounded in Indigenous identity and values. It involves navigating cultural differences while thriving in and striving to remain strong, balanced, and culturally rooted.",
+      related: ["Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Assistive Technology",
+      def: "Refers to tools, devices, and strategies that support individuals in participating in employment and related activities including managing tasks at work and accessing appointments by reducing barriers related to disability, communication, mobility, or organization.",
+      related: ["Working with Available Resources","Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Availability of Resources",
+      def: "Refers to the presence and accessibility of essential supports such as family, schools, service providers, medical care, and affordable housing as well as culturally significant natural resources aligned with the seasonal round, including plants, roots, berries, and animals used in traditional ceremonies and practices.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Way of Life","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Case Length Matched to the Goals and Needs of the Participant",
+      def: "Refers to the flexible structuring of services and timelines in Tribal Vocational Rehabilitation, allowing the duration of support to be tailored to each individual's unique circumstances, strengths, barriers, and personal or vocational goals rather than applying a fixed timeframe.",
+      related: ["Working with Available Resources","Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Celebrating Participant's Success",
+      def: "Offering intentional encouragement and recognition throughout a participant's journey acknowledging small achievements along the way and honoring them meaningfully when they reach their personal, educational, or employment goals.",
+      related: ["Working with Available Resources","Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Constant and Consistent Communication with Participant","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Acculturation"]
+    },
+    {
+      label: "Constant and Consistent Communication with Participant",
+      def: "Refers to the ongoing, reliable interactions between staff and participants that help identify emerging needs early, reinforce a sense of care and presence, and support the participant's personal development by being a steady, trustworthy figure in their life.",
+      related: ["Working with Available Resources","Way of Life","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Consumer's Ability to Participate in Cultural Ceremonies",
+      def: "Refers to the extent to which an individual can engage in traditional practices, influenced by factors such as the environmental accessibility of ceremony locations, the seasonal availability of culturally significant materials, and personal or social barriers that may limit participation.",
+      related: ["Acceptable Modes of Transportation","Way of Life","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Participants Finding Their Place","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation"]
+    },
+    {
+      label: "Cost of Living",
+      def: "Refers to the overall expenses required to maintain a basic standard of living in a specific region, including housing, food, transportation, utilities, and healthcare which can vary widely in Tribal communities due to remoteness, limited services, and fluctuating access to affordable goods.",
+      related: ["Working with Available Resources","Way of Life","Transportation Reliability","Transportation Options","Supporting Cultural Services","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Creatively Aligning with Practices, Grant Goals, Rules, Regulations",
+      def: "Refers to the intentional and adaptive process of designing and implementing program activities particularly in collaboration with financial offices and grant administrators in ways that honor community needs while staying compliant with federal guidelines and funding requirements.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Diverse Staff Complementing Each Other Within the Program","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Diverse Staff Complementing Each Other Within the Program",
+      def: "Refers to the practice of recognizing and leveraging the diverse strengths of team members including differences in education, life experience, workforce background, social networks, and personality to build a more effective, supportive, and well-rounded service team.",
+      related: ["Working with Available Resources","Way of Life","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Education Levels","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Acculturation","Accessibility of Public Transportation"]
+    },
+    {
+      label: "Duality (Two Worlds)",
+      def: "A state of being in which a person confidently lives within both Indigenous and Western worlds. It reflects the ability to maintain cultural identity and traditions while also achieving success in society. What defines duality is not just the act of moving between cultures, but the intentional integration of both by drawing strength from each and using that knowledge to uplift one's community. As expressed by a TVR Director's granddaughter: \"A high heel on one foot and a moccasin on the other.\"",
+      related: ["Working with Available Resources","Way of Life","Transportation Options","Staff Training on Cultural Awareness","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Internet"]
+    },
+    {
+      label: "Education Levels",
+      def: "Refers to the diverse range of formal and informal learning backgrounds represented among both staff and participants, including traditional Indigenous knowledge systems and non-Native, Western-style education. This includes a recognition of the high proportion of individuals with limited formal education and the value of community-embedded knowledge in shaping program success and participant growth.",
+      related: ["Acceptable Modes of Transportation","Way of Life","Transportation Reliability","Transportation Options","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Knowing Landscape Enough to Facilitate Informed Decision",
+      def: "Refers to a staff member's ability to understand and communicate the range of local, regional, and cultural opportunities including employment options, educational pathways, and traditional activities so participants can make meaningful, empowered decisions that align with their values, strengths, and goals.",
+      related: ["Working with Available Resources","Way of Life","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Education Levels","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Neighborhood Values",
+      def: "Refer to the social and environmental characteristics of a community that influence quality of life including the types of schools and opportunities available, the general way of life, whether it is seen as a place people want to raise children, and whether it fosters a low-stress or high-stress living environment.",
+      related: ["Acceptable Modes of Transportation","Way of Life","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Education Levels","Cost of Living","Availability of Resources"]
+    },
+    {
+      label: "Number of Employment Opportunities",
+      def: "Refers to the availability and variety of jobs within a given region shaped by factors such as geographic location, seasonal industries, tribal enterprises, and access to transportation all of which influence a participant's ability to pursue and maintain meaningful work.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Way of Life","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Participants Finding Their Place",
+      def: "Helping TVR program participants see their strengths and challenges in a positive way not just as a disability. It's about knowing they have something important to offer their family and community, and helping them feel a sense of purpose, belonging, and cultural connection.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Way of Life","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Program Staff Includes People with Disabilities",
+      def: "Some team members have personal experience with disability. This helps them better understand and connect with participants, set realistic goals, spot challenges more easily, and speak up for what participants need because they've been through it themselves.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Participants Finding Their Place","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Providing Education About TVR Program",
+      def: "Clearly explaining what the Tribal Vocational Rehabilitation (TVR) program is, what it does, and who it helps. This makes it easier for community members, other programs, and partners to understand it and send the right people for support.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Staff Training on Cultural Awareness",
+      def: "Both Tribal and non-Tribal team members learn about different Tribal cultures so they can understand, respect, and include cultural traditions, values, and ways of doing things in their work with others.",
+      related: ["Acceptable Modes of Transportation","Working with Available Resources","Way of Life","Transportation Reliability","Transportation Options","Supporting Cultural Services","Providing Education About TVR Program","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Duality (Two Worlds)","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation"]
+    },
+    {
+      label: "Supporting Cultural Services",
+      def: "Refers to supporting participants' engagement in culturally rooted practices such as ceremonies, gatherings, teachings, and seasonal activities as a recognized and valued part of their vocational journey. This involves creating access, honoring diverse Tribal traditions, and integrating cultural expression into service planning in respectful, community-informed ways.",
+      related: ["Working with Available Resources","Way of Life","Transportation Options","Staff Training on Cultural Awareness","Providing Education About TVR Program","Program Staff Includes People with Disabilities","Participants Finding Their Place","Number of Employment Opportunities","Knowing Landscape Enough to Facilitate Informed Decision","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Internet"]
+    },
+    {
+      label: "Transportation Options",
+      def: "Refers to the range of transportation methods available to participants and staff, including personal vehicles, public transit, rideshares, and program-provided transportation, all of which affect a participant's ability to access employment, appointments, and community activities.",
+      related: ["Acceptable Modes of Transportation","Way of Life","Transportation Reliability","Staff Training on Cultural Awareness","Supporting Cultural Services","Providing Education About TVR Program","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Education Levels","Cost of Living","Availability of Resources","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Transportation Reliability",
+      def: "How dependable transportation is. It includes whether cars or buses are in good condition, if drivers or services can be counted on, and how things like weather affect travel. These factors all impact whether someone can regularly get to work, appointments, or community activities.",
+      related: ["Acceptable Modes of Transportation","Way of Life","Transportation Options","Staff Training on Cultural Awareness","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Education Levels","Cost of Living","Availability of Resources"]
+    },
+    {
+      label: "Way of Life",
+      def: "How each person lives and connects to their culture. It's shaped by their family history, the community they live in, and their own identity. Everyone's connection to their traditions is different, and this affects how they approach services, responsibilities, and goals.",
+      related: ["Working with Available Resources","Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    },
+    {
+      label: "Working with Available Resources",
+      def: "Using whatever tools, people, or supports are on hand to get things done. It shows creativity, problem-solving, and a strong commitment to helping others, even when resources are limited.",
+      related: ["Transportation Reliability","Transportation Options","Staff Training on Cultural Awareness","Supporting Cultural Services","Program Staff Includes People with Disabilities","Participants Finding Their Place","Consumer's Ability to Participate in Cultural Ceremonies","Number of Employment Opportunities","Neighborhood Values","Knowing Landscape Enough to Facilitate Informed Decision","Education Levels","Duality (Two Worlds)","Diverse Staff Complementing Each Other Within the Program","Creatively Aligning with Practices, Grant Goals, Rules, Regulations","Cost of Living","Constant and Consistent Communication with Participant","Celebrating Participant's Success","Case Length Matched to the Goals and Needs of the Participant","Availability of Resources","Assistive Technology","Acculturation","Accessibility of Public Transportation","Accessibility of Internet"]
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     SETUP
+  ───────────────────────────────────────── */
+  var circleEl  = document.getElementById('circle');
+  var defTitle  = document.getElementById('centre-def-title');
+  var defBody   = document.getElementById('centre-def-body');
+  var centreDefEl = document.getElementById('centre-def');
+  var resetBtn  = document.getElementById('reset-btn');
+  var n = topicData.length;
+  var NS = 'http://www.w3.org/2000/svg';
+  var nodeEls = []; /* store {wrap, g} per index */
+  var activeIndex = -1;
+
+  /* Canvas text measurement */
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  function measureWidth(text, fs) {
+    ctx.font = 'bold ' + fs + 'px Arial,Helvetica,sans-serif';
+    return ctx.measureText(text).width;
+  }
+  function wrapWords(label, maxW, fs) {
+    var words = label.split(' '), lines = [], cur = '';
+    words.forEach(function(w) {
+      var test = cur ? cur + ' ' + w : w;
+      if (measureWidth(test, fs) <= maxW) { cur = test; }
+      else { if (cur) lines.push(cur); cur = w; }
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function fitTextInCircle(label, r) {
+    var pad = 0.78, lineH, lines, totalH, fits;
+    for (var fs = 13; fs >= 6; fs--) {
+      lineH = fs * 1.25;
+      lines = wrapWords(label, r * 2 * pad, fs);
+      totalH = lines.length * lineH;
+      fits = true;
+      var startY = -totalH / 2 + lineH / 2;
+      for (var li = 0; li < lines.length; li++) {
+        var y = startY + li * lineH;
+        var chord = 2 * Math.sqrt(Math.max(0, r*r - y*y)) * pad;
+        if (measureWidth(lines[li], fs) > chord) { fits = false; break; }
+      }
+      if (fits && totalH <= r * 2 * pad) break;
+    }
+    return { lines: lines, fontSize: fs, lineH: lineH };
+  }
+
+  /* Build one wood-log SVG (reused for orbit nodes and centre preview) */
+  function buildLogSVG(label, gradId, nodeRadius) {
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '-56 -56 112 112');
+    svg.setAttribute('role', 'none');
+    svg.setAttribute('aria-hidden', 'true');
+    var defs = document.createElementNS(NS, 'defs');
+    var grad = document.createElementNS(NS, 'radialGradient');
+    grad.setAttribute('id', gradId);
+    grad.setAttribute('cx','38%'); grad.setAttribute('cy','38%'); grad.setAttribute('r','62%');
+    [['0%','#e8c888'],['45%','#d4a96a'],['72%','#b8894a'],['100%','#7a5028']].forEach(function(s){
+      var stop = document.createElementNS(NS,'stop');
+      stop.setAttribute('offset',s[0]); stop.setAttribute('stop-color',s[1]);
+      grad.appendChild(stop);
+    });
+    defs.appendChild(grad); svg.appendChild(defs);
+    var g = document.createElementNS(NS,'g');
+    var circ = document.createElementNS(NS,'circle');
+    circ.setAttribute('class','node-circle'); circ.setAttribute('r','50');
+    circ.setAttribute('fill','url(#'+gradId+')');
+    circ.setAttribute('stroke','#7a5028'); circ.setAttribute('stroke-width','2.5');
+    g.appendChild(circ);
+    [16,28,38].forEach(function(rr){
+      var ring = document.createElementNS(NS,'circle');
+      ring.setAttribute('r',String(rr)); ring.setAttribute('fill','none');
+      ring.setAttribute('stroke','rgba(140,90,30,0.22)'); ring.setAttribute('stroke-width','1.5');
+      g.appendChild(ring);
+    });
+    var focusRing = document.createElementNS(NS,'circle');
+    focusRing.setAttribute('class','node-ring'); focusRing.setAttribute('r','53');
+    focusRing.setAttribute('fill','none'); focusRing.setAttribute('stroke','transparent');
+    focusRing.setAttribute('stroke-width','0');
+    g.appendChild(focusRing);
+    var fit = fitTextInCircle(label, nodeRadius || 42);
+    var startY = -(fit.lines.length-1)*fit.lineH/2;
+    fit.lines.forEach(function(line,li){
+      var t = document.createElementNS(NS,'text');
+      t.setAttribute('class','node-label'); t.setAttribute('x','0');
+      t.setAttribute('y', String(startY + li*fit.lineH));
+      t.setAttribute('font-size', String(fit.fontSize));
+      t.textContent = line;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+    return { svg: svg, g: g };
+  }
+
+  /* Build orbit nodes */
+  topicData.forEach(function(topic, i) {
+    var angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    var orbitR = 43;
+    var cx = 50 + orbitR * Math.cos(angle);
+    var cy = 50 + orbitR * Math.sin(angle);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'node';
+    wrap.style.left = cx + '%';
+    wrap.style.top  = cy + '%';
+    wrap.dataset.index = i;
+
+    var built = buildLogSVG(topic.label, 'wg'+i, 42);
+    built.g.setAttribute('tabindex','0');
+    built.g.setAttribute('role','button');
+    built.g.setAttribute('aria-label', topic.label + '. Tap or click to view definition and related topics.');
+
+    built.g.addEventListener('click', function() { selectNode(i); });
+    built.g.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNode(i); }
+    });
+
+    /* Show definition on hover only when no node is clicked */
+    wrap.addEventListener('mouseenter', function() {
+      if (activeIndex === -1) { previewNode(i); }
+    });
+    wrap.addEventListener('mouseleave', function() {
+      if (activeIndex === -1) { clearPreview(); }
+    });
+
+    /* Touch: on touch devices, a single tap selects the node.
+       The click event fires after touchend so selectNode handles it. */
+    wrap.addEventListener('touchstart', function(e) {
+      /* Prevent ghost mouse events on touch */
+      if (activeIndex === -1) {
+        e.stopPropagation();
+        previewNode(i);
+      }
+    }, { passive: true });
+
+    wrap.appendChild(built.svg);
+    circleEl.appendChild(wrap);
+    nodeEls.push({ wrap: wrap, g: built.g });
+  });
+
+  /* ─────────────────────────────────────────
+     INTERACTION
+  ───────────────────────────────────────── */
+  function normalizeLabel(s) {
+    return s.toLowerCase().replace(/[^a-z0-9]/g,'');
+  }
+
+  /* ── Hover preview (no click active) ── */
+  var hoverTimeout = null;
+  function previewNode(i) {
+    clearTimeout(hoverTimeout);
+    var topic = topicData[i];
+    defTitle.textContent = topic.label;
+    defBody.textContent  = topic.def;
+    centreDefEl.classList.add('visible');
+  }
+  function clearPreview() {
+    hoverTimeout = setTimeout(function() {
+      if (activeIndex === -1) {
+        centreDefEl.classList.remove('visible');
+        setTimeout(function() {
+          if (activeIndex === -1) {
+            defTitle.textContent = '';
+            defBody.textContent  = '';
+          }
+        }, 350);
+      }
+    }, 120);
+  }
+
+  function selectNode(i) {
+    activeIndex = i;
+    var topic = topicData[i];
+
+    /* Normalised related set */
+    var relatedNorm = {};
+    topic.related.forEach(function(r){ relatedNorm[normalizeLabel(r)] = true; });
+
+    /* Fade unrelated nodes; highlight selected */
+    nodeEls.forEach(function(el, j) {
+      var jLabel = normalizeLabel(topicData[j].label);
+      el.wrap.classList.remove('faded','selected');
+      if (j === i) {
+        el.wrap.classList.add('selected');
+      } else if (!relatedNorm[jLabel]) {
+        el.wrap.classList.add('faded');
+      }
+    });
+
+    /* Definition */
+    defTitle.textContent = topic.label;
+    defBody.textContent  = topic.def;
+    centreDefEl.classList.add('visible');
+
+    /* Filter list */
+    filterList(relatedNorm, i);
+
+    /* Reset button */
+    resetBtn.classList.add('visible');
+
+    /* Live region update for screen readers */
+    announce(topic.label + ': ' + topic.def);
+  }
+
+  function resetAll() {
+    activeIndex = -1;
+    nodeEls.forEach(function(el) {
+      el.wrap.classList.remove('faded','selected');
+    });
+    centreDefEl.classList.remove('visible');
+    resetBtn.classList.remove('visible');
+    resetList();
+    setTimeout(function(){
+      defTitle.textContent = '';
+      defBody.textContent  = '';
+    }, 400);
+  }
+
+  resetBtn.addEventListener('click', resetAll);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && activeIndex !== -1) resetAll();
+  });
+
+  /* Screen reader live region */
+  var liveEl = document.createElement('div');
+  liveEl.setAttribute('aria-live','polite');
+  liveEl.setAttribute('aria-atomic','true');
+  liveEl.className = 'sr-only';
+  document.body.appendChild(liveEl);
+  function announce(text) {
+    liveEl.textContent = '';
+    setTimeout(function(){ liveEl.textContent = text; }, 10);
+  }
+
+  /* ─────────────────────────────────────────
+     FALLBACK LIST
+  ───────────────────────────────────────── */
+  var ul = document.getElementById('topics-list');
+  var listItems = [];   /* parallel array to topicData — <li> elements */
+  var listDetails = []; /* parallel array to topicData — <details> elements */
+  topicData.forEach(function(item, i) {
+    var li = document.createElement('li');
+    var details = document.createElement('details');
+    var summary = document.createElement('summary');
+    summary.textContent = item.label;
+    var p = document.createElement('p');
+    p.textContent = item.def;
+    p.style.cssText = 'margin-top:0.4rem;font-size:0.85rem;color:#f0d090;line-height:1.5;';
+    details.appendChild(summary); details.appendChild(p);
+    li.appendChild(details); ul.appendChild(li);
+    listItems.push(li);
+    listDetails.push(details);
+  });
+
+  function filterList(relatedNorm, selectedIndex) {
+    listItems.forEach(function(li, j) {
+      var jLabel = normalizeLabel(topicData[j].label);
+      if (j === selectedIndex || relatedNorm[jLabel]) {
+        li.classList.remove('list-hidden');
+        listDetails[j].setAttribute('open', ''); /* expand all visible items */
+      } else {
+        li.classList.add('list-hidden');
+        listDetails[j].removeAttribute('open');
+      }
+    });
+  }
+
+  function resetList() {
+    listItems.forEach(function(li, j) {
+      li.classList.remove('list-hidden');
+      listDetails[j].removeAttribute('open'); /* collapse all on reset */
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
