@@ -50,15 +50,11 @@ Tested and compatible with:
 - Safari (desktop and iOS)
 - Firefox (desktop and Android)
 
-No polyfills or special configuration required.
-
 ---
 
 ## Notes for Reviewers
 
 - **Relationships:** Each element is linked to a specific set of related elements. Clicking a log shows only that element and its connections. These relationships are defined in the JavaScript `topicData` array near the top of the script section in `tvr-path.html`
-- **Editing content:** To update a definition or element name, search for the element's `label` property in the script and edit the corresponding `def` or `related` fields
-- **Flame animation:** The central bonfire uses CSS keyframe animations. If animation causes distraction or accessibility concerns, it can be disabled by removing the `<style>` block inside the flame SVG
 
 ---
 
