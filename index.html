@@ -794,7 +794,7 @@
   /* Build orbit nodes */
   topicData.forEach(function(topic, i) {
     var angle = -(i / n) * 2 * Math.PI - Math.PI / 2;
-    var orbitR = 43;
+    var orbitR = window.matchMedia('(hover: none)').matches ? 47 : 43;
     var cx = 50 + orbitR * Math.cos(angle);
     var cy = 50 + orbitR * Math.sin(angle);
 
@@ -982,7 +982,7 @@
     var innerCircle = document.getElementById('circle');
     if (!scrollWrap || !innerCircle) return;
 
-    var MAX_SCALE = 3.5;
+    var MAX_SCALE = 6.0;
     var MIN_SCALE = 1.0;
 
     var scale    = 1;
