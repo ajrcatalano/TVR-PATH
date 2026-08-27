@@ -180,6 +180,7 @@
     transform: translate(-50%, -50%) scale(1.35);
     z-index: 10;
   }
+  .node.ring-hidden { visibility: hidden; pointer-events: none; }
   .node.faded {
     opacity: 0;
     pointer-events: none;
@@ -279,21 +280,12 @@
 
   /* ── Pinch-zoom hint ── */
   #pinch-hint {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    background: rgba(20, 8, 0, 0.88);
-    color: #ffe8a0;
-    border: 1px solid rgba(255, 200, 80, 0.7);
-    border-radius: 20px;
-    padding: 7px 14px;
-    font-family: Arial, sans-serif;
-    font-size: 0.8rem;
-    pointer-events: none;
-    white-space: nowrap;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    display: none; position: fixed; z-index: 9999;
+    background: rgba(20, 8, 0, 0.88); color: #ffe8a0;
+    border: 1px solid rgba(255, 200, 80, 0.7); border-radius: 20px;
+    padding: 7px 14px; font-family: Arial, sans-serif; font-size: 0.8rem;
+    pointer-events: none; white-space: nowrap;
+    transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.3s ease;
   }
   #pinch-hint.visible { opacity: 1; }
 
@@ -315,6 +307,7 @@
 </head>
 <body>
 <div id="pinch-hint">Double-tap to reset zoom</div>
+<a href="#node-list" class="skip-link">Skip to topic list</a>
 <main id="main-content">
   <div class="page-wrapper">
     <header class="page-heading" role="banner">
@@ -878,9 +871,9 @@
     /* Fade unrelated nodes; highlight selected */
     nodeEls.forEach(function(el, j) {
       var jLabel = normalizeLabel(topicData[j].label);
-      el.wrap.classList.remove('faded','selected');
+      el.wrap.classList.remove('faded','selected','ring-hidden');
       if (j === i) {
-        el.wrap.classList.add('selected');
+        el.wrap.classList.add('ring-hidden');
       } else if (!relatedNorm[jLabel]) {
         el.wrap.classList.add('faded');
       }
@@ -945,6 +938,7 @@
     var p = document.createElement('p');
     p.textContent = item.def;
     p.style.cssText = 'margin-top:0.4rem;font-size:0.85rem;color:#f0d090;line-height:1.5;';
+    details.setAttribute('open', '');
     details.appendChild(summary); details.appendChild(p);
     li.appendChild(details); ul.appendChild(li);
     listItems.push(li);
@@ -967,7 +961,7 @@
   function resetList() {
     listItems.forEach(function(li, j) {
       li.classList.remove('list-hidden');
-      listDetails[j].removeAttribute('open'); /* collapse all on reset */
+      listDetails[j].setAttribute('open', '');
     });
   }
 
@@ -975,177 +969,96 @@
      PINCH ZOOM & PAN (touch devices only)
   ───────────────────────────────────────── */
   (function() {
-    /* Only activate on touch devices */
     if (window.matchMedia('(hover: none)').matches === false) return;
-
     var scrollWrap = document.querySelector('.circle-scroll-wrap');
     var innerCircle = document.getElementById('circle');
     if (!scrollWrap || !innerCircle) return;
-
-    var MAX_SCALE = 3.5;
-    var MIN_SCALE = 1.0;
-
-    var scale    = 1;
-    var panX     = 0;
-    var panY     = 0;
+    var MAX_SCALE = 3.5, MIN_SCALE = 1.0;
+    var scale = 1, panX = 0, panY = 0;
     var hintShown = false;
-    var hintEl   = document.getElementById('pinch-hint');
-    var hintTimeout = null;
+    var hintEl = document.getElementById('pinch-hint');
 
     function applyTransform() {
       innerCircle.style.transform = 'scale(' + scale + ') translate(' + panX + 'px,' + panY + 'px)';
       innerCircle.style.transformOrigin = '50% 50%';
     }
-
     function showHint(clientX, clientY) {
       if (hintShown || !hintEl) return;
       hintShown = true;
       hintEl.style.display = 'block';
-      /* Clamp to viewport edges with 10px margin */
-      var hw = 160; /* approx half-width of hint */
-      var hh = 20;  /* approx half-height */
-      var vw = window.innerWidth;
-      var vh = window.innerHeight;
-      var cx = Math.min(Math.max(clientX, hw + 10), vw - hw - 10);
-      var cy = Math.min(Math.max(clientY, hh + 10), vh - hh - 10);
-      hintEl.style.left = cx + 'px';
-      hintEl.style.top  = cy + 'px';
+      var hw = 160, hh = 20;
+      var cx = Math.min(Math.max(clientX, hw + 10), window.innerWidth - hw - 10);
+      var cy = Math.min(Math.max(clientY, hh + 10), window.innerHeight - hh - 10);
+      hintEl.style.left = cx + 'px'; hintEl.style.top = cy + 'px';
       requestAnimationFrame(function() { hintEl.classList.add('visible'); });
-      hintTimeout = setTimeout(function() {
+      setTimeout(function() {
         hintEl.classList.remove('visible');
         setTimeout(function() { hintEl.style.display = 'none'; }, 350);
       }, 2500);
     }
-
     function resetZoom() {
-      scale = 1; panX = 0; panY = 0;
-      applyTransform();
+      scale = 1; panX = 0; panY = 0; applyTransform();
       scrollWrap.classList.remove('zoom-active');
     }
-
-    /* ── Double-tap to reset ── */
-    var lastTapTime = 0;
-    var lastTapX = 0, lastTapY = 0;
+    var lastTapTime = 0, lastTapX = 0, lastTapY = 0;
     scrollWrap.addEventListener('touchend', function(e) {
       if (e.changedTouches.length !== 1) return;
-      var now = Date.now();
-      var t = e.changedTouches[0];
-      var dx = t.clientX - lastTapX;
-      var dy = t.clientY - lastTapY;
+      var now = Date.now(), t = e.changedTouches[0];
+      var dx = t.clientX - lastTapX, dy = t.clientY - lastTapY;
       if (now - lastTapTime < 320 && Math.sqrt(dx*dx + dy*dy) < 30 && scale > 1) {
-        resetZoom();
-        e.preventDefault();
+        resetZoom(); e.preventDefault();
       }
-      lastTapTime = now;
-      lastTapX = t.clientX;
-      lastTapY = t.clientY;
+      lastTapTime = now; lastTapX = t.clientX; lastTapY = t.clientY;
     }, { passive: false });
 
-    /* ── Pinch & pan ── */
-    var touches       = {};   /* active touch points by identifier */
-    var pinchStartDist = 0;
-    var pinchStartScale = 1;
-    var panStartX = 0, panStartY = 0;
-    var panOriginX = 0, panOriginY = 0;
-    var isPinching  = false;
-    var TAP_THRESHOLD = 8; /* px — movement below this is treated as a tap */
-    var touchStartX = 0, touchStartY = 0;
-    var touchMoved  = false;
-
-    function getTouchDist(a, b) {
-      var dx = a.clientX - b.clientX;
-      var dy = a.clientY - b.clientY;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
-    function midpoint(a, b) {
-      return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
-    }
+    var touches = {}, pinchStartDist = 0, pinchStartScale = 1;
+    var panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
+    var isPinching = false;
+    function getTouchDist(a, b) { var dx=a.clientX-b.clientX,dy=a.clientY-b.clientY; return Math.sqrt(dx*dx+dy*dy); }
+    function midpoint(a, b) { return { x:(a.clientX+b.clientX)/2, y:(a.clientY+b.clientY)/2 }; }
 
     scrollWrap.addEventListener('touchstart', function(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        var t = e.changedTouches[i];
-        touches[t.identifier] = { clientX: t.clientX, clientY: t.clientY };
-      }
+      for (var i=0;i<e.changedTouches.length;i++) { var t=e.changedTouches[i]; touches[t.identifier]={clientX:t.clientX,clientY:t.clientY}; }
       var ids = Object.keys(touches);
-
       if (ids.length === 2) {
-        /* Starting a pinch */
         isPinching = true;
-        var a = touches[ids[0]], b = touches[ids[1]];
-        pinchStartDist  = getTouchDist(a, b);
-        pinchStartScale = scale;
-        var mid = midpoint(a, b);
-        panStartX = mid.x;
-        panStartY = mid.y;
-        panOriginX = panX;
-        panOriginY = panY;
+        var a=touches[ids[0]],b=touches[ids[1]];
+        pinchStartDist=getTouchDist(a,b); pinchStartScale=scale;
+        var mid=midpoint(a,b); panStartX=mid.x; panStartY=mid.y; panOriginX=panX; panOriginY=panY;
         e.preventDefault();
       } else if (ids.length === 1) {
-        touchStartX = e.changedTouches[0].clientX;
-        touchStartY = e.changedTouches[0].clientY;
-        touchMoved  = false;
-        if (scale > 1) {
-          /* Start a pan */
-          panStartX  = e.changedTouches[0].clientX;
-          panStartY  = e.changedTouches[0].clientY;
-          panOriginX = panX;
-          panOriginY = panY;
-        }
+        if (scale > 1) { panStartX=e.changedTouches[0].clientX; panStartY=e.changedTouches[0].clientY; panOriginX=panX; panOriginY=panY; }
       }
     }, { passive: false });
 
     scrollWrap.addEventListener('touchmove', function(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        var t = e.changedTouches[i];
-        if (touches[t.identifier]) {
-          touches[t.identifier] = { clientX: t.clientX, clientY: t.clientY };
-        }
-      }
+      for (var i=0;i<e.changedTouches.length;i++) { var t=e.changedTouches[i]; if(touches[t.identifier]) touches[t.identifier]={clientX:t.clientX,clientY:t.clientY}; }
       var ids = Object.keys(touches);
-
       if (ids.length === 2 && isPinching) {
         e.preventDefault();
-        var a = touches[ids[0]], b = touches[ids[1]];
-        var dist = getTouchDist(a, b);
-        var newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, pinchStartScale * (dist / pinchStartDist)));
-
-        /* Pan follows midpoint movement */
-        var mid = midpoint(a, b);
-        var dMidX = (mid.x - panStartX) / newScale;
-        var dMidY = (mid.y - panStartY) / newScale;
-        panX = panOriginX + dMidX;
-        panY = panOriginY + dMidY;
-        scale = newScale;
-        applyTransform();
-
-        if (scale > 1) {
-          scrollWrap.classList.add('zoom-active');
-          /* Show hint on first pinch zoom, anchored to pinch midpoint */
-          showHint(mid.x, mid.y);
-        } else {
-          scrollWrap.classList.remove('zoom-active');
-        }
+        var a=touches[ids[0]],b=touches[ids[1]];
+        var dist=getTouchDist(a,b);
+        var newScale=Math.min(MAX_SCALE,Math.max(MIN_SCALE,pinchStartScale*(dist/pinchStartDist)));
+        var mid=midpoint(a,b);
+        panX=panOriginX+(mid.x-panStartX)/newScale;
+        panY=panOriginY+(mid.y-panStartY)/newScale;
+        scale=newScale; applyTransform();
+        if (scale > 1) { scrollWrap.classList.add('zoom-active'); showHint(mid.x,mid.y); }
+        else { scrollWrap.classList.remove('zoom-active'); }
       } else if (ids.length === 1 && scale > 1) {
         e.preventDefault();
-        var t0 = e.changedTouches[0];
-        var dx = t0.clientX - touchStartX;
-        var dy = t0.clientY - touchStartY;
-        if (Math.sqrt(dx*dx + dy*dy) > TAP_THRESHOLD) touchMoved = true;
-        panX = panOriginX + (t0.clientX - panStartX) / scale;
-        panY = panOriginY + (t0.clientY - panStartY) / scale;
+        var t0=e.changedTouches[0];
+        panX=panOriginX+(t0.clientX-panStartX)/scale;
+        panY=panOriginY+(t0.clientY-panStartY)/scale;
         applyTransform();
       }
     }, { passive: false });
 
     scrollWrap.addEventListener('touchend', function(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        delete touches[e.changedTouches[i].identifier];
-      }
+      for (var i=0;i<e.changedTouches.length;i++) delete touches[e.changedTouches[i].identifier];
       if (Object.keys(touches).length < 2) isPinching = false;
-      /* If scale snapped back to 1, remove zoom-active */
-      if (scale <= 1) { scale = 1; panX = 0; panY = 0; applyTransform(); scrollWrap.classList.remove('zoom-active'); }
+      if (scale <= 1) { scale=1; panX=0; panY=0; applyTransform(); scrollWrap.classList.remove('zoom-active'); }
     }, { passive: true });
-
   })();
 
 })();
