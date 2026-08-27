@@ -897,7 +897,7 @@
   function resetAll() {
     activeIndex = -1;
     nodeEls.forEach(function(el) {
-      el.wrap.classList.remove('faded','selected');
+      el.wrap.classList.remove('faded','selected','ring-hidden');
     });
     centreDefEl.classList.remove('visible');
     resetBtn.classList.remove('visible');
@@ -961,7 +961,7 @@
   function resetList() {
     listItems.forEach(function(li, j) {
       li.classList.remove('list-hidden');
-      listDetails[j].setAttribute('open', '');
+      listDetails[j].setAttribute('open', ''); /* keep expanded on reset */
     });
   }
 
