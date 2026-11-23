@@ -886,8 +886,22 @@
 
     /* Filter list */
     filterList(relatedNorm, i);
-    document.getElementById('list-title').textContent =
-      'TVR PATH Sub-diagram - All Elements Connected to Focus Element: ' + topic.label + ' Sub-diagram';
+
+var titleEl = document.getElementById('list-title');
+if (titleEl) {
+  titleEl.textContent = '';
+
+  var strong = document.createElement('strong');
+  strong.textContent = 'Sub-diagram';
+
+  var line2 = document.createElement('span');
+  line2.style.fontWeight = 'normal';
+  line2.textContent = 'All Elements Connect to ' + topic.label;
+
+  titleEl.appendChild(strong);
+  titleEl.appendChild(document.createElement('br'));
+  titleEl.appendChild(line2);
+}
    
     /* Reset button */
     resetBtn.classList.add('visible');
