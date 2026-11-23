@@ -951,7 +951,7 @@
   function filterList(relatedNorm, selectedIndex) {
     listItems.forEach(function(li, j) {
       var jLabel = normalizeLabel(topicData[j].label);
-      if (j === selectedIndex && relatedNorm[jLabel]) {
+      if (j !== selectedIndex && relatedNorm[jLabel]) {
         li.classList.remove('list-hidden');
         listDetails[j].setAttribute('open', ''); /* expand all visible items */
       } else {
