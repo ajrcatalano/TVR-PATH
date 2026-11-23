@@ -539,7 +539,7 @@
 
     <p class="mobile-hint" aria-hidden="true" style="display:none; text-align:center; font-family:Arial,sans-serif; font-size:0.9rem; color:#0a0000; font-weight:700; margin-bottom:0.75rem;">Tap any log to see its definition and explore its connections</p>
     <section id="node-list" aria-label="TVR PATH elements list">
-      <h2>TVR PATH Elements</h2>
+      <h2> id="list-title">TVR PATH All Elements In System</h2>
       <ul id="topics-list"></ul>
     </section>
   </div>
@@ -886,7 +886,9 @@
 
     /* Filter list */
     filterList(relatedNorm, i);
-
+    document.getElementById('list-title').textContent =
+      'TVR PATH Elements Connected to Focus Element: ' + topic.label + ' Sub-diagram';
+   
     /* Reset button */
     resetBtn.classList.add('visible');
 
@@ -902,6 +904,7 @@
     centreDefEl.classList.remove('visible');
     resetBtn.classList.remove('visible');
     resetList();
+    document.getElementById('list-title').textContent = 'TVR PATH All Elements In System';
     setTimeout(function(){
       defTitle.textContent = '';
       defBody.textContent  = '';
@@ -948,7 +951,7 @@
   function filterList(relatedNorm, selectedIndex) {
     listItems.forEach(function(li, j) {
       var jLabel = normalizeLabel(topicData[j].label);
-      if (j === selectedIndex || relatedNorm[jLabel]) {
+      if (j === selectedIndex && relatedNorm[jLabel]) {
         li.classList.remove('list-hidden');
         listDetails[j].setAttribute('open', ''); /* expand all visible items */
       } else {
