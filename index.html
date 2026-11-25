@@ -539,7 +539,7 @@
 
     <p class="mobile-hint" aria-hidden="true" style="display:none; text-align:center; font-family:Arial,sans-serif; font-size:0.9rem; color:#0a0000; font-weight:700; margin-bottom:0.75rem;">Tap any log to see its definition and explore its connections</p>
     <section id="node-list" aria-label="TVR PATH elements list">
-      <h2 id="list-title">All Elements In TVR PATH</h2>
+      <h2 id="list-title"><strong style="font-size:1.3em;">All Elements in TVR Path</strong></h2>
       <ul id="topics-list"></ul>
     </section>
   </div>
@@ -919,7 +919,14 @@ if (titleEl) {
     centreDefEl.classList.remove('visible');
     resetBtn.classList.remove('visible');
     resetList();
-    document.getElementById('list-title').textContent = 'All Elements in TVR PATH';
+    var titleEl = document.getElementById('list-title');
+if (titleEl) {
+  titleEl.textContent = '';
+  var strong = document.createElement('strong');
+  strong.textContent = 'All Elements in TVR PATH';
+  strong.style.fontSize = '1.3em';
+  titleEl.appendChild(strong);
+}
     setTimeout(function(){
       defTitle.textContent = '';
       defBody.textContent  = '';
